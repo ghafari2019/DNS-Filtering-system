@@ -37,6 +37,14 @@ The application extracts the following features from a given URL to make predict
 ### Security Features
 - **Have IP Address**: Checks if the URL contains an IP address.
 
+## Setup
+
+### Prerequisites
+
+- Python 3.x
+- Virtual environment
+- Prometheus
+- dnsmasq
 
 ## Installation
 
@@ -64,24 +72,14 @@ The application extracts the following features from a given URL to make predict
     mv path/to/best_xgboost_model.joblib /home/ghafari_ghzl/
     ```
 
-## Usage
 
-1. Run the Flask app:
-    ```sh
-    python app.py
-    ```
+### Step 1: Setup Flask Application
+1.**Install Flask and Prometheus Client:**
+```bash
+pip install Flask prometheus_client
+```
 
-2. Send a POST request to the `/predict` endpoint with a JSON body containing the URL to be evaluated:
-    ```sh
-    curl -X POST -H "Content-Type: application/json" -d '{"url": "http://example.com"}' http://localhost:5000/predict
-    ```
-
-3. The app will respond with a JSON object indicating whether the URL is malicious:
-    ```json
-    {
-      "malicious": true
-    }
-    ```
+2.**Create Flask Application (app.py):**
 
 ## Code
 
@@ -190,6 +188,207 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)
 ```
 
+3. **Run the Flask app:**
+    ```sh
+    python app.py
+    ```
+
+4. **Send a POST request to the `/predict` endpoint with a JSON body containing the URL to be evaluated:**
+    ```sh
+    curl -X POST -H "Content-Type: application/json" -d '{"url": "http://example.com"}' http://localhost:5000/predict
+    ```
+
+5. **The app will respond with a JSON object indicating whether the URL is malicious:**
+    ```json
+    {
+      "malicious": true
+    }
+    ```
+
+### Step 2: Configure dnsmasq
+
+1. **Install dnsmasq:**
+    ```bash
+    sudo apt-get install dnsmasq
+    ```
+
+2. **Configure `dnsmasq`**:
+    - Add the following lines to `/etc/dnsmasq.conf`:
+      ```conf
+      server=127.0.0.1#5000
+      port=53
+      listen-address=127.0.0.1
+
+      # Log each DNS query
+      log-queries
+
+      # Log extra information about DHCP transactions
+      log-dhcp
+
+      # Include another lot of configuration options
+      conf-dir=/etc/dnsmasq.d
+      ```
+
+3. **Create a Script for DNS Queries (`dns_filter.sh`):**
+    ```bash
+    #!/bin/bash
+
+    DOMAIN=$1
+    RESPONSE=$(curl -s -X POST http://34.80.4.242:5000/classify -H "Content-Type: application/json" -d '{"url": "'$DOMAIN'"}')
+    CLASSIFICATION=$(echo $RESPONSE | jq -r '.classification')
+
+    if [ "$CLASSIFICATION" == "malicious" ]; then
+        echo "0.0.0.0"
+    else
+        dig +short $DOMAIN
+    fi
+    ```
+
+4. **Make the Script Executable:**
+    ```bash
+    chmod +x dns_filter.sh
+    ```
+
+5. **Create `/etc/dnsmasq.d/custom.conf`:**
+    ```conf
+    addn-hosts=/etc/dnsmasq.d/hosts.blocklist
+    ```
+
+    - **Purpose of `hosts.blocklist`**: It contains a predefined list of domains to block.
+    - **Dynamic Updating**: You would need an additional script or process to add newly identified malicious URLs to this `hosts.blocklist` file and then reload `dnsmasq` to apply the changes.
+
+6. **Restart dnsmasq:**
+    ```bash
+    sudo systemctl restart dnsmasq
+    ```
+
+### Step 3: Deploy Flask Application with Gunicorn
+
+1. **Install Gunicorn:**
+    ```bash
+    pip install gunicorn
+    ```
+
+2. **Create systemd Service for Gunicorn (`/etc/systemd/system/gunicorn.service`):**
+    ```ini
+    [Unit]
+    Description=gunicorn daemon
+    After=network.target
+
+    [Service]
+    User=ghafari_ghzl
+    Group=www-data
+    WorkingDirectory=/home/ghafari_ghzl
+    ExecStart=/home/ghafari_ghzl/myenv/bin/gunicorn --workers 2 --bind 127.0.0.1:5000 app:app
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
+
+3. **Start and Enable Gunicorn Service:**
+    ```bash
+    sudo systemctl start gunicorn
+    sudo systemctl enable gunicorn
+    ```
+
+### Step 4: Install and Configure Prometheus
+
+1. **Install Prometheus:**
+    ```bash
+    sudo apt-get update
+    sudo apt-get install prometheus
+    ```
+
+2. **Configure Prometheus (`/etc/prometheus/prometheus.yml`):**
+    ```yaml
+    global:
+      scrape_interval: 15s  # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+      evaluation_interval: 15s  # Evaluate rules every 15 seconds. The default is every 1 minute.
+      # scrape_timeout is set to the global default (10s).
+
+    # Alertmanager configuration
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets:
+          - 'localhost:9093'
+
+    # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+    rule_files:
+      - "alert.rules"
+
+    # A scrape configuration containing exactly one endpoint to scrape:
+    # Here it's Prometheus itself.
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      # The job for scraping the node exporter
+      - job_name: 'node_exporter'
+        static_configs:
+          - targets: ['34.80.4.242:9100']
+    ```
+
+3. **Restart Prometheus:**
+    ```bash
+    sudo systemctl restart prometheus
+    ```
+
+### Step 5: Install and Configure Grafana
+
+1. **Install Grafana:**
+    ```bash
+    sudo apt-get install -y grafana
+    ```
+
+2. **Start Grafana:**
+    ```bash
+    sudo systemctl start grafana-server
+    sudo systemctl enable grafana-server
+    ```
+
+3. **Configure Grafana:**
+    - Open Grafana at `http://<your_server_ip>:3000`.
+    - Add Prometheus as a data source:
+        - Navigate to Configuration > Data Sources > Add Data Source > Prometheus.
+        - Set URL to `http://localhost:9090`.
+        - Click "Save & Test".
+
+### Step 6: Create Dashboards and Alerts in Grafana
+
+1. **Create Dashboards:**
+    - Add a new dashboard.
+    - Add panels for monitoring the `malicious_url_counter` metric.
+
+2. **Example PromQL Queries:**
+    - **Malicious URL Counter:**
+      ```promql
+      malicious_url_counter
+      ```
+
+3. **Set Up Alerts:**
+    - Configure alert rules in Grafana to notify when `malicious_url_counter` exceeds a threshold.
+    - Configure notification channels (email, Slack, etc.) in Grafana.
+
+### Step 7: Testing and Verification
+
+1. **Simulate Malicious URL Detection:**
+    - Send a POST request to the Flask application:
+      ```bash
+      curl -X POST http://34.80.4.242:5000/classify -H "Content-Type: application/json" -d '{"url": "malicious_url_example"}'
+      ```
+
+2. **Verify Alerts in Grafana:**
+    - Check the Grafana dashboard for updates to the `malicious_url_counter` metric.
+    - Ensure alerts are triggered and notifications are sent.
+
+## Usage
+
+- The Flask application will be available on `127.0.0.1:5000`.
+- Prometheus will scrape metrics from the Flask application on `localhost:8000`.
+- Grafana can be used to visualize the metrics.
+
 
 
 
@@ -197,6 +396,15 @@ if __name__ == '__main__':
 1. **`flask_app_requirements.txt`**: Ensure you have a `flask_app_requirements.txt` file listing all dependencies (e.g., Flask, joblib, numpy, tldextract).
 2. **Model File**: The path to the model file (`best_xgboost_model.joblib`) should be adjusted according to your project structure.
 3. **Environment Variables**: If you are deploying this to a cloud service, you might need to set environment variables for the port or other configuration.
+
+
+
+
+
+
+
+
+
 
 This `README.md` should provide clear guidance for anyone looking to understand, install, and run your project.
 
