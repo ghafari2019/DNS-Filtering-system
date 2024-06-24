@@ -33,7 +33,7 @@ This repository contains a Flask application that uses a pre-trained XGBoost mod
 
 3. Install the required packages:
     ```sh
-    pip install -r requirements.txt
+    pip install -r flask_app_requirements.txt
     ```
 
 4. Place the pre-trained XGBoost model file (`best_xgboost_model.joblib`) in the appropriate directory:
@@ -166,4 +166,15 @@ def predict():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+```
+
+
+
+
+### Additional Notes:
+1. **`flask_app_requirements.txt`**: Ensure you have a `flask_app_requirements.txt` file listing all dependencies (e.g., Flask, joblib, numpy, tldextract).
+2. **Model File**: The path to the model file (`best_xgboost_model.joblib`) should be adjusted according to your project structure.
+3. **Environment Variables**: If you are deploying this to a cloud service, you might need to set environment variables for the port or other configuration.
+
+This `README.md` should provide clear guidance for anyone looking to understand, install, and run your project.
 
