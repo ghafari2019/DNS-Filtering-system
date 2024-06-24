@@ -1,6 +1,10 @@
 # DNS-Filtering-system
 The primary goal of this project is to set up a DNS filtering and URL classification system using Flask, dnsmasq, and a machine learning model. Additionally, the project aims to monitor the system's performance and availability using Prometheus and Grafana
 
+
+![Flowchart](dnsfiltering.png)
+
+
 # URL Feature Extraction and Malicious URL Detection
 
 This repository contains a Flask application that uses a pre-trained XGBoost model to predict whether a given URL is malicious. The app extracts various features from the URL and uses them to make predictions.
@@ -37,14 +41,21 @@ The application extracts the following features from a given URL to make predict
 ### Security Features
 - **Have IP Address**: Checks if the URL contains an IP address.
 
+
+
+
+
 ## Setup
 
 ### Prerequisites
 
 - Python 3.x
 - Virtual environment
-- Prometheus
+- Flask
 - dnsmasq
+- Gunicorn
+- Prometheus
+  
 
 ## Installation
 
