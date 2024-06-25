@@ -1,6 +1,6 @@
 # DNS URL Filtering System
 
-This project uses Flask, dnsmasq, Prometheus, and Grafana to set up a DNS URL filtering system. The admin system handles URL checking and blocking, and notifications are sent to both the admin and the employees who attempt to access blocked URLs.
+This project sets up a DNS URL filtering system using Flask, dnsmasq, Prometheus, and Grafana. The admin system handles URL checking and blocking, and notifications are sent to both the admin and the employees who attempt to access blocked URLs.
 
 ## Overview
 
@@ -272,102 +272,13 @@ This project uses Flask, dnsmasq, Prometheus, and Grafana to set up a DNS URL fi
     - Check the Grafana dashboard for updates to the `malicious_url_counter_total` metric.
     - Ensure alerts are triggered and notifications are sent.
 
-### Step 8: Network Configuration for Employee Systems
+### Network Configuration for Employee Systems
 
 1. **Set DNS Server to Admin System**:
    - Configure each employee system to use the admin system's IP as the DNS server.
-   - This can be done via DHCP settings on the router or manually configuring network settings on each employee system.
-
-#### Manual Configuration on Each Device
-
-##### Windows
-
-1. **Open Network Connections**:
-   - Press `Windows + R`, type `ncpa.cpl`, and press `Enter`.
-
-2. **Change Adapter Settings**:
-   - Right-click on the active network connection (Ethernet/Wi-Fi) and select `Properties`.
-
-3. **Configure IPv4**:
-   - Select `Internet Protocol Version 4 (TCP/IPv4)` and click `Properties`.
-
-4. **Set DNS Server Address**:
-   - Select `Use the following DNS server addresses`.
-   - Enter the admin system's IP address in the `Preferred DNS server` field.
-   - Click `OK` and `Close`.
-
-##### macOS
-
-1. **Open System Preferences**:
-   - Click the Apple menu and select `System Preferences`.
-
-2. **Network Settings**:
-   - Click `Network`.
-
-3. **Configure Network Adapter**:
-   - Select the active network connection (Wi-Fi/Ethernet) and click `Advanced`.
-
-4. **Set DNS Server Address**:
-   - Go to the `DNS` tab.
-   - Click the `+` button and add the admin system's IP address.
-   - Click `OK` and `Apply`.
-
-##### Linux
-
-1. **Edit Network Configuration**:
-   - Depending on the Linux distribution and network manager in use, you can edit the network configuration file or use a graphical interface.
-
-2. **Set DNS Server Address**:
-   - For example, on Ubuntu with Network Manager, you can use:
-     ```bash
-     nmcli connection modify <connection_name> ipv4.dns <admin_system_ip>
-     nmcli connection up <connection_name>
-     ```
-
-#### Automatic Configuration via DHCP Server
-
-1. **Access Router/DHCP Server Settings**:
-   - Log in to your router or DHCP server's web interface.
-
-2. **Locate DHCP Settings**:
-   - Navigate to the DHCP settings page.
-
-3. **Set DNS Server**:
-   - Set the admin system's IP address as the primary DNS server.
-   - Save the settings and restart the router if necessary.
-
-### Verifying DNS Configuration
-
-To ensure the changes have taken effect, you can check the DNS server settings on the client devices.
-
-##### Windows
-
-1. **Command Prompt**:
-   - Open Command Prompt and type:
-     ```bash
-     ipconfig /all
-     ```
-   - Verify the DNS Servers list includes the admin system's IP address.
-
-##### macOS
-
-1. **Terminal**:
-   - Open Terminal and type:
-     ```bash
-     scutil --dns
-     ```
-   - Check the DNS configuration.
-
-##### Linux
-
-1. **Terminal**:
-   - Open Terminal and type:
-     ```bash
-     nmcli dev show | grep DNS
-     ```
-   - Verify the DNS server.
+   - This can usually be done via DHCP settings on the router or manually configuring network settings on each employee system.
 
 ## Summary
 
-By following these steps, you can deploy a comprehensive DNS URL filtering system that not only blocks malicious URLs but also notifies both the admin and the individual employee attempting to access the URL. The system will also track and log the IP address of each employee trying to access a blocked URL.
+By following these steps, you can deploy a comprehensive DNS URL filtering system that not only blocks malicious URLs but also notifies both the admin and the individual employee attempting to access
 
