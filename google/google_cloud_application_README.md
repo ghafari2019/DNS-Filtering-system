@@ -232,17 +232,14 @@ def predict():
     ```
 ### Step 4: Configure dnsmasq
 
-1. **SSH into dnsmasq VM**:
-    ```bash
-    gcloud compute ssh dnsmasq-vm --zone=us-central1-a
-    ```
 
-2. **Install dnsmasq**:
+
+1. **Install dnsmasq**:
     ```bash
     sudo apt-get install dnsmasq
     ```
 
-3. **Configure dnsmasq (/etc/dnsmasq.conf)**:
+2. **Configure dnsmasq (/etc/dnsmasq.conf)**:
     ```conf
     server=127.0.0.1#5000
     port=53
@@ -258,7 +255,7 @@ def predict():
     conf-dir=/etc/dnsmasq.d
     ```
 
-4. **Create a Script for DNS Queries (dns_filter.sh)**:
+3. **Create a Script for DNS Queries (dns_filter.sh)**:
     ```bash
     #!/bin/bash
 
@@ -272,36 +269,32 @@ def predict():
         dig +short $DOMAIN
     fi
     ```
+Note: Here we only have a single vm instance, so all VM_IPs are the same: <Prometheus_VM_IP>=<Grafana_VM_IP>=<dnsmasq_VM_IP>=<Flask_VM_IP>
 
-5. **Make the Script Executable**:
+4. **Make the Script Executable**:
     ```bash
     chmod +x /path/to/dns_filter.sh
     ```
 
-6. **Create /etc/dnsmasq.d/custom.conf**:
+5. **Create /etc/dnsmasq.d/custom.conf**:
     ```conf
     addn-hosts=/etc/dnsmasq.d/hosts.blocklist
     ```
 
-7. **Restart dnsmasq**:
+6. **Restart dnsmasq**:
     ```bash
     sudo systemctl restart dnsmasq
     ```
 
-### Step 5: Deploy Prometheus
+### Step 5: Install and Configure Prometheus
 
-1. **SSH into Prometheus VM**:
-    ```bash
-    gcloud compute ssh prometheus-vm --zone=us-central1-a
-    ```
-
-2. **Install Prometheus**:
+1. **Install Prometheus**:
     ```bash
     sudo apt-get update
     sudo apt-get install prometheus
     ```
 
-3. **Configure Prometheus (/etc/prometheus/prometheus.yml)**:
+2. **Configure Prometheus (/etc/prometheus/prometheus.yml)**:
     ```yaml
     global:
       scrape_interval: 15s
@@ -313,30 +306,26 @@ def predict():
           - targets: ['<Flask_VM_IP>:8000']
     ```
 
-4. **Restart Prometheus**:
+
+3. **Restart Prometheus**:
     ```bash
     sudo systemctl restart prometheus
     ```
 
-### Step 6: Deploy Grafana
+### Step 6: Install and Configure Grafana
 
-1. **SSH into Grafana VM**:
-    ```bash
-    gcloud compute ssh grafana-vm --zone=us-central1-a
-    ```
-
-2. **Install Grafana**:
+1. **Install Grafana**:
     ```bash
     sudo apt-get install -y grafana
     ```
 
-3. **Start Grafana**:
+2. **Start Grafana**:
     ```bash
     sudo systemctl start grafana-server
     sudo systemctl enable grafana-server
     ```
 
-4. **Configure Grafana**:
+3. **Configure Grafana**:
     - Open Grafana at `http://<Grafana_VM_IP>:3000`.
     - Add Prometheus as a data source:
       - Navigate to Configuration > Data Sources > Add Data Source > Prometheus.
