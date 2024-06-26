@@ -1,6 +1,18 @@
 # Step-by-Step Guide: Setting Up DNS-Layer Security Using Google Cloud and No-IP
 
-## 1. low_cost_cloud_setup.pdf
+## 1. DNS_server_using_BIND9.pdf
+
+This document provides a step-by-step guide for setting up a DNS server using BIND9 on a Google Cloud VM, including firewall configuration and DNS resolution verification.
+
+- **Step 1**: Create a free subdomain on No-IP.
+- **Step 2**: Set up a Google Cloud VM named "dns-vm-instance".
+- **Step 3**: Install and configure BIND9 on the VM.
+- **Step 4**: Configure firewall rules on Google Cloud to allow DNS traffic.
+- **Step 5**: Verify DNS functionality using `dig` command.
+
+
+
+## 2. DNS_layer_security_Google_Cloud.pdf
 
 This document provides a detailed summary of setting up DNS-layer security on Google Cloud, including creating a project, enabling APIs, setting up VMs, and configuring DNS.
 
