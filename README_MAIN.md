@@ -37,10 +37,10 @@ There are several alternative methods for URL filtering, each with its own advan
 - **Pros**: Effective against known threats; can be integrated with antivirus software.
 - **Cons**: Ineffective against new, unknown threats (zero-day attacks).
 
-### 3. Heuristic/Behavioral Analysis
-- **How It Works**: Analyzes the behavior of URLs and websites to detect unusual patterns or activities that may indicate malicious intent.
-- **Pros**: Can detect new and unknown threats; does not rely solely on known signatures.
-- **Cons**: Higher false positive rate; requires more computational resources.
+### 3. Proxy-Based Filtering
+- **How It Works**: Routes all web traffic through a proxy server that filters URLs based on set rules and policies.
+- **Pros**: Centralized control; can apply comprehensive policies.
+- **Cons**: Single point of failure; can introduce latency.
 
 ### 4. Content Filtering
 - **How It Works**: Inspects the content of web pages in real-time to determine if they contain malicious or inappropriate material.
