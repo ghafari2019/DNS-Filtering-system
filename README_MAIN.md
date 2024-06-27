@@ -4,6 +4,24 @@
 
 This DNS filtering system automatically recognizes and handles malicious URLs without requiring manual intervention from employees. The system integrates `dnsmasq`, a Flask application, and machine learning to ensure robust and adaptive protection against harmful content.
 
+## Network Size Suitability
+
+This method is particularly well-suited for small to medium-sized networks, typically defined as:
+
+- **Small Networks**: Up to 50 devices
+- **Medium-Sized Networks**: Between 50 and 500 devices
+
+For networks larger than this range, modifications and enhancements may be needed to ensure optimal performance and reliability. 
+
+### Scaling for Larger Networks
+
+For larger networks, above the medium size (500+ devices), consider the following adjustments:
+
+- **Load Balancing**: Distribute the DNS query load across multiple instances of `dnsmasq` and the Flask application.
+- **High Availability**: Implement redundancy for `dnsmasq` and Flask instances to ensure continuous operation.
+- **Enhanced Monitoring**: Increase the granularity of monitoring with Prometheus and Grafana to manage the higher load effectively.
+- **Optimized Machine Learning Models**: Utilize more powerful machine learning models and potentially distribute the classification workload across multiple servers.
+
 ## How the System Works
 
 ![Flowchart](dns_filtering_last.png)
