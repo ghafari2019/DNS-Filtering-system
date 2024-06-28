@@ -128,11 +128,11 @@ The XGBClassifier outperformed the other models with the highest accuracy and ba
 ## How to Run
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/url-classification.git
+    git clone https://github.com/ghafari2019/DNS-Filtering-system.git
     ```
 2. Navigate to the project directory:
     ```bash
-    cd url-classification
+    cd DNS-Filtering-system
     ```
 3. Install required libraries:
     ```bash
