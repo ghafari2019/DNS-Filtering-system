@@ -3,11 +3,6 @@ exec(open('import_libraries.py').read())
 exec(open('define_functions.py').read())
 exec(open('process_data.py').read())
 
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
-from xgboost import XGBClassifier
-import joblib
-
 # Assuming 'urls_data_reduced', 'X', 'y', 'X_train', 'X_test', 'y_train', 'y_test' are available from process_data.py
 
 # Split data into training and testing sets
