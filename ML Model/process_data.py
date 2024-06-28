@@ -1,3 +1,11 @@
+from define_functions import *
+from tabulate import tabulate
+import pandas as pd
+import plotly.graph_objects as go
+import seaborn as sns
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
 # Load dataset
 urls_data = pd.read_csv(r'C:\Users\User\Desktop\cgi interview\malicious_phish.csv')
 
@@ -64,7 +72,21 @@ fig.update_xaxes(tickfont=dict(color='white'))
 fig.update_yaxes(tickfont=dict(color='white'))
 fig.show()
 
-# Encoding and Labeling
-le = LabelEncoder()
+# Visualization: Word Cloud of URLs
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(urls_data['url']))
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title('Word Cloud of URLs')
+plt.show()
 
-# Define a function to hash encode the
+# Pie chart for 'url_type' column
+url_type_counts = urls_data['type'].value_counts()
+fig = go.Figure(data=[go.Pie(labels=url_type_counts.index, values=url_type_counts.values)])
+fig.update_layout(title='Distribution of URL Types',
+                  template='plotly_dark',
+                  font=dict(color='white'),
+                  showlegend=True)
+fig.show()
+
+
