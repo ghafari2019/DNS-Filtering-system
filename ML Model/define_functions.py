@@ -1,14 +1,6 @@
 # define_functions.py
 exec(open('import_libraries.py').read())
 
-# define_functions.py
-import pandas as pd
-import tldextract
-import ipaddress
-from urllib.parse import urlparse
-import re
-from tld import get_tld
-
 # Define functions to extract features
 # Domain-based Features
 def extract_pri_domain(url):
