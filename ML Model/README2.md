@@ -132,51 +132,29 @@ The XGBClassifier outperformed the other models with the highest accuracy and ba
     ```
 2. Navigate to the project directory:
     ```bash
-    cd DNS-Filtering-system
+    cd C:\Users\User\DNS-Filtering-system\ML Model
     ```
-3. Create and Write to requirements.txt Using Echo:    
-```bash
-echo numpy==2.0.0 > requirements.txt
-echo pandas==2.2.2 >> requirements.txt
-echo seaborn==0.13.2 >> requirements.txt
-echo matplotlib==3.9.0 >> requirements.txt
-echo scikit-learn==1.5.0 >> requirements.txt
-echo xgboost==2.1.0 >> requirements.txt
-echo lightgbm==4.3.0 >> requirements.txt
-echo catboost==1.2.5 >> requirements.txt
-echo tldextract==5.1.2 >> requirements.txt
-echo tld==0.13 >> requirements.txt
-echo colorama==0.4.6 >> requirements.txt
-echo plotly==5.22.0 >> requirements.txt
-echo wordcloud==1.9.3 >> requirements.txt
-echo gensim==4.3.2 >> requirements.txt
-echo whois==1.20240129.2 >> requirements.txt
-echo tabulate==0.9.0 >> requirements.txt
-```
-4. Install required libraries:
+
+3. Install required libraries:
     ```bash
     pip install -r requirements.txt
     ```
-5. Run the scripts in the following order:
+4. Run the scripts in the following order:
     ```bash
     python import_libraries.py
     python define_functions.py
     python process_data.py
+    ```
+    ```bash
     python model_selection.py
+    ```
+    ```bash
     python train_model.py
     ```
 
+    
 ## Conclusion
-This project demonstrates an effective approach to classifying URLs using machine learning. By identifying potentially harmful URLs, it enhances the overall security measures for web users.
+This project demonstrates an effective approach to classifying URLs using machine learning. Identifying potentially harmful URLs enhances the overall security measures for web users.
 
-## Acknowledgements
-- Data source: [URL dataset](#)
-- Libraries: `scikit-learn`, `xgboost`, `lightgbm`, `pandas`, `numpy`, `matplotlib`, `seaborn`
 
-## Visualizations
-- Include visualizations such as the classifier accuracy comparison plot, confusion matrix, and ROC curve here.
-
----
-
-Feel free to modify this `README.md` file according to the specific details and results of your project.
 
