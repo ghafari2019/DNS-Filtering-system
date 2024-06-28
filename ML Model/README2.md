@@ -18,7 +18,29 @@ The dataset contains URLs and their corresponding types:
 ## Data Processing
 ### Feature Extraction
 The features are extracted from the URLs using functions defined in `define_functions.py`. These features include various characteristics of the URLs that help in classification.
-![Flowchart](dnsfiltering.png)
+
+## Results
+
+### 1. Correlation Matrix
+The correlation matrix plot shows the relationship between different features and the target variable (type). It helps to identify which features are more relevant for the classification task.
+
+![Correlation Matrix](correlation.png)
+
+### 2. Count of Different Types of URLs
+This bar plot displays the distribution of different URL types in the dataset. It helps to understand the class imbalance in the dataset.
+
+![Count of Different Types of URLs](plot1.png)
+
+### 3. Distribution of URL Types
+This pie chart shows the percentage distribution of each URL type in the dataset, providing a visual representation of the class proportions.
+
+![Distribution of URL Types](plot3.png)
+
+### 4. Word Cloud of URLs
+The word cloud visualizes the most common terms found in the URLs. It helps to understand the common patterns and words used in different types of URLs.
+
+![Word Cloud of URLs](word_cloud.png)
+
 ### Data Splitting
 The data is split into training and testing sets to evaluate model performance.
 
@@ -35,26 +57,62 @@ The following classifiers were evaluated:
 - LGBMClassifier
 - SVC
 
-### Hyperparameter Tuning
-- The XGBClassifier was used with specific parameters to enhance performance.
-- The LGBMClassifier was instantiated with verbosity reduced to disable logs.
 
 ### Evaluation Method
 The models were evaluated using 5-fold cross-validation. The performance metrics included accuracy, recall, precision, and F1 score.
-![Flowchart](dnsfiltering.png)
+
+#### 1. Classifier Performance Comparison
+This bar plot compares the performance metrics (accuracy, precision, recall, F1 score) of different classifiers. The XGBClassifier shows the highest performance across all metrics.
+
+![Comparison of Classifier Performance Metrics](models_comparison.png)
+
+### 2. Classifier Performance Table
+This table summarizes the performance of each classifier in terms of accuracy, precision, recall, and F1 score.
+
+## Classifier Performance Table
+
+| **Model**                | **Accuracy** | **Precision** | **Recall** | **F1-Score** |
+|--------------------------|--------------|---------------|------------|--------------|
+| XGBClassifier            | 0.938        | 0.936         | 0.938      | 0.936        |
+| RandomForestClassifier   | 0.937        | 0.935         | 0.937      | 0.935        |
+| ExtraTreesClassifier     | 0.934        | 0.932         | 0.934      | 0.933        |
+| LGBMClassifier           | 0.934        | 0.932         | 0.934      | 0.932        |
+| DecisionTreeClassifier   | 0.915        | 0.915         | 0.915      | 0.915        |
+| KNeighborsClassifier     | 0.825        | 0.812         | 0.825      | 0.813        |
+| GaussianNB               | 0.670        | 0.779         | 0.670      | 0.538        |
+| SVC                      | 0.670        | 0.779         | 0.670      | 0.538        |
+| AdaBoostClassifier       | 0.492        | 0.822         | 0.492      | 0.522        |
+
 
 ## Results
 ### Performance Metrics
 The XGBClassifier outperformed the other models with the highest accuracy and balanced performance across all metrics.
 
-### Visualizations
-- **Classifier Accuracy Comparison**: A bar plot showing the accuracy of each classifier.
-- **Confusion Matrix**: Visual representation of the true positives, true negatives, false positives, and false negatives.
-- **ROC Curve and AUC**: Evaluates the model’s ability to distinguish between classes.
+### Hyperparameter Tuning
+- The XGBClassifier was used with specific parameters to enhance performance.
+- The LGBMClassifier was instantiated with verbosity reduced to disable logs.
+
 
 ## Discussion
 ### Interpretation of Results
 - The XGBClassifier demonstrated superior performance in classifying URLs, making it the best choice for this task.
+
+## Model Evaluation Results
+
+| **Metric**                | **Value**  |
+|---------------------------|------------|
+| **Best Parameters**       |            |
+| colsample_bytree          | 1.0        |
+| learning_rate             | 0.2        |
+| max_depth                 | 7          |
+| n_estimators              | 300        |
+| subsample                 | 0.8        |
+| **Best Test Accuracy**    | 0.95       |
+| **Best Test Recall**      | 0.95       |
+| **Best Test Precision**   | 0.95       |
+| **Best Test F1-Score**    | 0.95       |
+
+
 
 ### Model Strengths and Weaknesses
 - **Strengths**: High accuracy, good balance between precision and recall.
