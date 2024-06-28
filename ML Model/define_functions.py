@@ -1,3 +1,6 @@
+# define_functions.py
+exec(open('import_libraries.py').read())
+
 # Define functions to extract features
 # Domain-based Features
 def extract_pri_domain(url):
@@ -32,10 +35,10 @@ def count_non_alphanumeric(url):
     return len([char for char in url if not char.isalnum()])
 
 def count_digits(url):
-    return len([char for char in url if char.isdigit()])
+    return len([char for char in url if char isdigit()])
 
 def count_letters(url):
-    return len([char for char in url if char.isalpha()])
+    return len([char for char in url if char isalpha()])
 
 def count_params(url):
     return len(urlparse(url).query.split('&'))
@@ -90,3 +93,4 @@ def have_ip_address(url):
 # HTML-based Features (Dummy placeholders for now)
 def dummy_function(url):
     return 0  # Placeholder for complex features that require external data
+
