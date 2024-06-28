@@ -134,17 +134,36 @@ The XGBClassifier outperformed the other models with the highest accuracy and ba
     ```bash
     cd DNS-Filtering-system
     ```
-3. Install required libraries:
+3. Create and Write to requirements.txt Using Echo:    
+```bash
+echo numpy==2.0.0 > requirements.txt
+echo pandas==2.2.2 >> requirements.txt
+echo seaborn==0.13.2 >> requirements.txt
+echo matplotlib==3.9.0 >> requirements.txt
+echo scikit-learn==1.5.0 >> requirements.txt
+echo xgboost==2.1.0 >> requirements.txt
+echo lightgbm==4.3.0 >> requirements.txt
+echo catboost==1.2.5 >> requirements.txt
+echo tldextract==5.1.2 >> requirements.txt
+echo tld==0.13 >> requirements.txt
+echo colorama==0.4.6 >> requirements.txt
+echo plotly==5.22.0 >> requirements.txt
+echo wordcloud==1.9.3 >> requirements.txt
+echo gensim==4.3.2 >> requirements.txt
+echo whois==1.20240129.2 >> requirements.txt
+echo tabulate==0.9.0 >> requirements.txt
+```
+4. Install required libraries:
     ```bash
     pip install -r requirements.txt
     ```
-4. Run the scripts in the following order:
+5. Run the scripts in the following order:
     ```bash
     python import_libraries.py
     python define_functions.py
     python process_data.py
-    python train_model.py
     python model_selection.py
+    python train_model.py
     ```
 
 ## Conclusion
