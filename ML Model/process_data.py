@@ -1,10 +1,5 @@
-from define_functions import *
-from tabulate import tabulate
-import pandas as pd
-import plotly.graph_objects as go
-import seaborn as sns
-import matplotlib.pyplot as plt
-from wordcloud import WordCloud
+# process_data.py
+exec(open('define_functions.py').read())
 
 # Load dataset
 urls_data = pd.read_csv(r'C:\Users\User\Desktop\cgi interview\malicious_phish.csv')
@@ -89,4 +84,107 @@ fig.update_layout(title='Distribution of URL Types',
                   showlegend=True)
 fig.show()
 
+# Encoding and Labeling
+le = LabelEncoder()
+
+# Define a function to hash encode the root_domain
+def hash_encode(category):
+    hash_object = hashlib.md5(category.encode())
+    return int(hash_object.hexdigest(), 16) % (10 ** 8)
+
+# Display the value counts of the root_domain column
+print("\nValue counts of 'root_domain' before filtering:")
+print(tabulate(urls_data['root_domain'].value_counts().reset_index(), headers=['Root Domain', 'Count'], tablefmt='psql'))
+
+# Filter out rows where root_domain is '0'
+urls_data = urls_data[urls_data['root_domain'] != '0']
+print("\nValue counts of 'root_domain' after filtering:")
+print(tabulate(urls_data['root_domain'].value_counts().reset_index(), headers=['Root Domain', 'Count'], tablefmt='psql'))
+
+# Display the number of unique values in the root_domain column
+print("\nNumber of unique root_domain values:", len(urls_data['root_domain'].value_counts()))
+
+# Apply the hash encoding function to the root_domain column
+urls_data['root_domain'] = urls_data['root_domain'].apply(hash_encode)
+urls_data['have_ip'] = urls_data['have_ip'].astype(int)
+urls_data['type'] = le.fit_transform(urls_data['type'])
+
+# Display the final DataFrame
+print(tabulate(urls_data.head(), headers='keys', tablefmt='psql'))
+
+# Handle missing values efficiently by filling with the median for numeric columns
+numeric_columns = urls_data.select_dtypes(include=['int64', 'float64','int32','int8']).columns
+urls_data[numeric_columns] = urls_data[numeric_columns].apply(lambda x: x.fillna(x.median()))
+print(numeric_columns)
+
+# Remove constant features
+constant_features = [column for column in urls_data.columns if urls_data[column].nunique() == 1]
+urls_data.drop(columns=constant_features, inplace=True)
+
+# Update numeric columns after dropping constant features
+numeric_columns = urls_data.select_dtypes(include=['int64', 'float64','int32','int8']).columns
+
+# Check for any remaining missing values and fill them if necessary
+urls_data[numeric_columns] = urls_data[numeric_columns].fillna(0)
+
+# Update numeric columns after adding the 'type_numeric' column
+numeric_columns = urls_data.select_dtypes(include=['int64', 'float64','int32','int8']).columns
+
+# Calculate the correlation matrix
+correlation_matrix = urls_data[numeric_columns].corr()
+
+# Identify highly correlated features
+threshold = 0.85
+high_corr_pairs = [(column, correlation_matrix.index[i]) for i, row in enumerate(correlation_matrix.values) for j, column in enumerate(correlation_matrix.columns) if abs(row[j]) > threshold and i != j]
+
+# Keep track of features to drop, ensuring only one feature per pair is dropped
+features_to_drop = set()
+already_dropped = set()
+
+for feature_1, feature_2 in high_corr_pairs:
+    if feature_1 not in features_to_drop and feature_2 not in features_to_drop:
+        # Arbitrarily keep feature_1 and drop feature_2
+        features_to_drop.add(feature_2)
+        already_dropped.add(feature_1)
+
+# Drop the highly correlated features
+urls_data_reduced = urls_data.drop(columns=features_to_drop)
+
+# Recalculate the correlation matrix for the reduced dataset
+reduced_numeric_columns = urls_data_reduced.select_dtypes(include=['int64', 'float64','int32','int8']).columns
+reduced_correlation_matrix = urls_data_reduced[reduced_numeric_columns].corr()
+
+# Visualize the reduced correlation matrix
+plt.figure(figsize=(16, 10))
+sns.heatmap(reduced_correlation_matrix, annot=True, cmap='coolwarm')
+plt.title('Correlation Matrix of Reduced Features')
+plt.show()
+
+# Output the list of dropped features
+print("Dropped features due to high correlation:")
+print(tabulate(pd.DataFrame(list(features_to_drop), columns=["Dropped Features"]), headers='keys', tablefmt='psql'))
+
+# Display initial dataset info and handle missing values
+print("Initial dataset preview:")
+print(tabulate(urls_data_reduced.head(), headers='keys', tablefmt='psql'))
+print("\nMissing values in each column:")
+print(tabulate(urls_data_reduced.isnull().sum().reset_index(), headers=['Column', 'Missing Values'], tablefmt='psql'))
+print("\nDataset shape (rows, columns):", urls_data_reduced.shape)
+
+# Drop duplicates and display updated dataset shape
+urls_data_reduced.drop_duplicates(inplace=True)
+print("\nShape after dropping duplicates:", urls_data_reduced.shape)
+
+# Display dataset columns
+print("\nDataset columns:")
+print(tabulate(pd.DataFrame(urls_data_reduced.columns, columns=["Columns"]), headers='keys', tablefmt='psql'))
+
+# Drop unnecessary columns
+data = urls_data_reduced.drop(columns=['url', 'type', 'pri_domain'])
+print("\nDataset preview after dropping unnecessary columns:")
+print(tabulate(data.head(), headers='keys', tablefmt='psql'))
+
+# Split data into features (X) and target (y)
+X = data
+y = urls_data_reduced['type']
 
