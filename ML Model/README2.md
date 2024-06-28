@@ -19,6 +19,38 @@ The dataset contains URLs and their corresponding types:
 ### Feature Extraction
 The features are extracted from the URLs using functions defined in `define_functions.py`. These features include various characteristics of the URLs that help in classification.
 
+
+
+
+The application extracts the following features from a given URL to make predictions:
+
+#### URL Structure Features
+- **Has Subdomain**: Checks if the URL contains a subdomain.
+- **Root Domain**: Extracts the root domain of the URL and hashes it as an integer.
+
+##### Character Count Features
+- **Count Dots**: Counts the number of dots ('.') in the URL.
+- **Count Dashes**: Counts the number of dashes ('-') in the URL.
+- **Count Underscores**: Counts the number of underscores ('_') in the URL.
+- **Count Slashes**: Counts the number of slashes ('/') in the URL.
+- **Count Question Marks**: Counts the number of question marks ('?') in the URL.
+- **Count Non-Alphanumeric Characters**: Counts the number of non-alphanumeric characters in the URL.
+- **Count Digits**: Counts the number of digits in the URL.
+- **Count Letters**: Counts the number of letters in the URL.
+
+#### Parameter Count Features
+- **Count Parameters**: Counts the number of parameters in the URL query string.
+
+#### Presence of Specific Substrings
+- **Has PHP**: Checks if the URL contains 'php'.
+- **Has HTML**: Checks if the URL contains 'html'.
+- **Has At Symbol**: Checks if the URL contains the '@' symbol.
+- **Has Double Slash**: Checks if the URL contains a double slash ('//').
+- **Has HTTP**: Checks if the URL uses the HTTP scheme.
+- **Has HTTPS**: Checks if the URL uses the HTTPS scheme.
+
+#### Security Features
+- **Have IP Address**: Checks if the URL contains an IP address.
 ## Results
 
 ### 1. Correlation Matrix
