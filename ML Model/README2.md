@@ -129,6 +129,8 @@ The XGBClassifier outperformed the other models with the highest accuracy and ba
 ### Interpretation of Results
 - The XGBClassifier demonstrated superior performance in classifying URLs, making it the best choice for this task.
 
+![Distribution of URL Types](mlmodel.png)
+
 ## Model Evaluation Results
 
 | **Metric**                | **Value**  |
