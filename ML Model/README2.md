@@ -1,5 +1,44 @@
 # URL Classification Project
 
+
+## Table of Contents
+
+  - [Overview](#overview)
+  - [Dataset](#dataset)
+  - [Project Structure](#project-structure)
+  - [Data Processing](#data-processing)
+    - [Feature Extraction](#feature-extraction)
+      - [URL Structure Features](#url-structure-features)
+      - [Character Count Features](#character-count-features)
+      - [Parameter Count Features](#parameter-count-features)
+      - [Presence of Specific Substrings](#presence-of-specific-substrings)
+      - [Security Features](#security-features)
+  - [Results](#results)
+    - [1. Correlation Matrix](#1-correlation-matrix)
+    - [2. Count of Different Types of URLs](#2-count-of-different-types-of-urls)
+    - [3. Distribution of URL Types](#3-distribution-of-url-types)
+    - [4. Word Cloud of URLs](#4-word-cloud-of-urls)
+  - [Data Splitting](#data-splitting)
+  - [Model Selection and Training](#model-selection-and-training)
+    - [Models Used](#models-used)
+    - [Evaluation Method](#evaluation-method)
+      - [1. Classifier Performance Comparison](#1-classifier-performance-comparison)
+    - [2. Classifier Performance Table](#2-classifier-performance-table)
+  - [Classifier Performance Table](#classifier-performance-table)
+  - [Results](#results)
+    - [Performance Metrics](#performance-metrics)
+    - [Hyperparameter Tuning](#hyperparameter-tuning)
+  - [Discussion](#discussion)
+    - [Interpretation of Results](#interpretation-of-results)
+      - [Model Evaluation Results](#model-evaluation-results)
+    - [Model Strengths and Weaknesses](#model-strengths-and-weaknesses)
+    - [Business Implications](#business-implications)
+    - [Future Work](#future-work)
+  - [How to Run](#how-to-run)
+  - [Conclusion](#conclusion)
+
+
+
 ## Overview
 This project aims to classify URLs into different types (benign, defacement, phishing, malware) using various machine learning models. The project involves feature extraction from URLs and evaluating multiple classifiers to identify the best-performing model.
 
