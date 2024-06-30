@@ -1,5 +1,30 @@
 # DNS Filtering System with Machine Learning
 
+
+## Table of Contents
+
+  - [Overview](#overview)
+  - [Network Size Suitability](#network-size-suitability)
+    - [Scaling for Larger Networks](#scaling-for-larger-networks)
+  - [How the System Works](#how-the-system-works)
+    - [DNS Resolution and Filtering](#dns-resolution-and-filtering)
+    - [Automation and Monitoring](#automation-and-monitoring)
+  - [Alternative Methods for URL Filtering](#alternative-methods-for-url-filtering)
+    - [1. Blacklisting and Whitelisting](#1-blacklisting-and-whitelisting)
+    - [2. Signature-Based Filtering](#2-signature-based-filtering)
+    - [3. Proxy-Based Filtering](#3-proxy-based-filtering)
+    - [4. Content Filtering](#4-content-filtering)
+    - [5. Machine Learning-Based Filtering](#5-machine-learning-based-filtering)
+  - [Why Our Method is Better](#why-our-method-is-better)
+    - [1. Integration of DNS Filtering with Machine Learning](#1-integration-of-dns-filtering-with-machine-learning)
+    - [2. Real-Time URL Classification](#2-real-time-url-classification)
+    - [3. Automation and Monitoring with Prometheus and Grafana](#3-automation-and-monitoring-with-prometheus-and-grafana)
+    - [4. Scalability and Flexibility](#4-scalability-and-flexibility)
+    - [5. Cost-Effective and Open Source](#5-cost-effective-and-open-source)
+  - [Summary](#summary)
+
+
+
 ## Overview
 
 This DNS filtering system automatically recognizes and handles malicious URLs without requiring manual intervention from employees. The system integrates `dnsmasq`, a Flask application, and machine learning to ensure robust and adaptive protection against harmful content.
