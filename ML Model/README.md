@@ -3,8 +3,7 @@
 This repository contains a script for extracting various features from URLs and preparing the data for machine learning classification. The script includes data loading, feature extraction, data cleaning, visualization, and data splitting for training and testing.
 
 ## Table of Contents
-- [Requirements](#requirements)
-- [Usage](#usage)
+
 - [Code Explanation](#code-explanation)
   - [Importing Libraries](#importing-libraries)
   - [Loading Dataset](#loading-dataset)
@@ -25,32 +24,7 @@ This repository contains a script for extracting various features from URLs and 
   - [Displaying Initial Dataset Info and Handling Missing Values](#displaying-initial-dataset-info-and-handling-missing-values)
   - [Dropping Unnecessary Columns and Splitting Data](#dropping-unnecessary-columns-and-splitting-data)
 
-## Requirements
-- Python 3.x
-- pandas
-- numpy
-- seaborn
-- matplotlib
-- plotly
-- scikit-learn
-- xgboost
-- lightgbm
-- catboost
-- tldextract
-- tld
-- colorama
-- gensim
-- tabulate
 
-Install the required libraries using:
-```bash
-pip install pandas numpy seaborn matplotlib plotly scikit-learn xgboost lightgbm catboost tldextract tld colorama gensim tabulate
-```
-## Usage
-1. Clone the repository.
-2. Ensure you have the required dataset `malicious_phish.csv`.
-3. Update the path to the dataset in the script if necessary.
-4. Run the script.
 
 ## Code Explanation
 
@@ -394,38 +368,7 @@ print(tabulate(pd.DataFrame({"X_train": [X_train.shape], "y_train": [y_train.sha
 ```
 This final section drops unnecessary columns, splits the data into features and target, and then splits it into training and testing sets. It also prints the shapes of these sets for verification.
 
-# URL Feature Extraction and Malicious URL Detection
 
-## Feature Extraction
 
-The application extracts the following features from a given URL to make predictions:
-
-### URL Structure Features
-- **Has Subdomain**: Checks if the URL contains a subdomain.
-- **Root Domain**: Extracts the root domain of the URL and hashes it as an integer.
-
-### Character Count Features
-- **Count Dots**: Counts the number of dots ('.') in the URL.
-- **Count Dashes**: Counts the number of dashes ('-') in the URL.
-- **Count Underscores**: Counts the number of underscores ('_') in the URL.
-- **Count Slashes**: Counts the number of slashes ('/') in the URL.
-- **Count Question Marks**: Counts the number of question marks ('?') in the URL.
-- **Count Non-Alphanumeric Characters**: Counts the number of non-alphanumeric characters in the URL.
-- **Count Digits**: Counts the number of digits in the URL.
-- **Count Letters**: Counts the number of letters in the URL.
-
-### Parameter Count Features
-- **Count Parameters**: Counts the number of parameters in the URL query string.
-
-### Presence of Specific Substrings
-- **Has PHP**: Checks if the URL contains 'php'.
-- **Has HTML**: Checks if the URL contains 'html'.
-- **Has At Symbol**: Checks if the URL contains the '@' symbol.
-- **Has Double Slash**: Checks if the URL contains a double slash ('//').
-- **Has HTTP**: Checks if the URL uses the HTTP scheme.
-- **Has HTTPS**: Checks if the URL uses the HTTPS scheme.
-
-### Security Features
-- **Have IP Address**: Checks if the URL contains an IP address.
 
 
