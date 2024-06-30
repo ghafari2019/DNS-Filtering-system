@@ -1,11 +1,8 @@
-# DNS-Filtering-system
-The primary goal of this project is to set up a DNS filtering and URL classification system using Flask, dnsmasq, and a machine learning model. Additionally, the project aims to monitor the system's performance and availability using Prometheus and Grafana
+# DNS URL Filtering System for Local Network
 
+This project sets up a DNS URL filtering system using Flask, dnsmasq, Prometheus, and Grafana for a local network environment. The system is designed to detect and block malicious URLs, notifying both the administrator and the employees attempting to access these URLs. This solution integrates machine learning for URL classification, providing a robust and adaptive protection mechanism against harmful content.
 
-![Flowchart](dnsfiltering.png)
-
-
-
+For instructions on deploying this system on Google Cloud Platform (GCP), please refer to the appropriate documentation in the `google_cloud_setup` directory.
 
 ## Setup
 
@@ -17,7 +14,7 @@ The primary goal of this project is to set up a DNS filtering and URL classifica
 - dnsmasq
 - Gunicorn
 - Prometheus
-  
+- Grafana
 
 ## Installation
 
@@ -25,7 +22,6 @@ The primary goal of this project is to set up a DNS filtering and URL classifica
     ```sh
     git clone https://github.com/ghafari2019/DNS-Filtering-system.git
     cd DNS-Filtering-system
-
     ```
 
 2. Create and activate a virtual environment:
@@ -45,121 +41,119 @@ The primary goal of this project is to set up a DNS filtering and URL classifica
     mv path/to/best_xgboost_model.joblib /home/ghafari_ghzl/
     ```
 
-
 ### Step 1: Setup Flask Application
-1.**Install Flask and Prometheus Client:**
-```bash
-pip install Flask prometheus_client
-```
 
-2.**Create Flask Application (app.py):**
+1. **Install Flask and Prometheus Client:**
+    ```bash
+    pip install Flask prometheus_client
+    ```
 
-## Code
+2. **Create Flask Application (app.py):**
 
-```python
-import os
-from flask import Flask, request, jsonify
-import joblib
-import numpy as np
-from urllib.parse import urlparse
-import ipaddress
-import tldextract
+    ```python
+    import os
+    from flask import Flask, request, jsonify
+    import joblib
+    import numpy as np
+    from urllib.parse import urlparse
+    import ipaddress
+    import tldextract
 
-app = Flask(__name__)
+    app = Flask(__name__)
 
-# Load the pre-trained XGBoost model
-model = joblib.load('/home/ghafari_ghzl/best_xgboost_model.joblib')
+    # Load the pre-trained XGBoost model
+    model = joblib.load('/home/ghafari_ghzl/best_xgboost_model.joblib')
 
-def count_chars(url, char):
-    return url.count(char)
+    def count_chars(url, char):
+        return url.count(char)
 
-def count_non_alphanumeric(url):
-    return len([char for char in url if not char.isalnum()])
+    def count_non_alphanumeric(url):
+        return len([char for char in url if not char isalnum()])
 
-def count_digits(url):
-    return len([char for char in url if char.isdigit()])
+    def count_digits(url):
+        return len([char for char in url if char isdigit()])
 
-def count_letters(url):
-    return len([char for char in url if char.isalpha()])
+    def count_letters(url):
+        return len([char for char in url if char isalpha()])
 
-def count_params(url):
-    return len(urlparse(url).query.split('&'))
+    def count_params(url):
+        return len(urlparse(url).query.split('&'))
 
-def has_php(url):
-    return 1 if 'php' in url else 0
+    def has_php(url):
+        return 1 if 'php' in url else 0
 
-def has_html(url):
-    return 1 if 'html' in url else 0
+    def has_html(url):
+        return 1 if 'html' in url else 0
 
-def has_at_symbol(url):
-    return 1 if '@' in url else 0
+    def has_at_symbol(url):
+        return 1 if '@' in url else 0
 
-def has_double_slash(url):
-    return 1 if '//' in url else 0
+    def has_double_slash(url):
+        return 1 if '//' in url else 0
 
-def has_http(url):
-    return 1 if urlparse(url).scheme == 'http' else 0
+    def has_http(url):
+        return 1 if urlparse(url).scheme == 'http' else 0
 
-def has_https(url):
-    return 1 if urlparse(url).scheme == 'https' else 0
+    def has_https(url):
+        return 1 if urlparse(url).scheme == 'https' else 0
 
-def secure_http(url):
-    return int(urlparse(url).scheme == 'https')
+    def secure_http(url):
+        return int(urlparse(url).scheme == 'https')
 
-def have_ip_address(url):
-    try:
-        parsed_url = urlparse(url)
-        if parsed_url.hostname:
-            ip = ipaddress.ip_address(parsed_url.hostname)
-            return isinstance(ip, (ipaddress.IPv4Address, ipaddress.IPv6Address))
-    except ValueError:
-        pass  # Invalid hostname or IP address
-    return 0
+    def have_ip_address(url):
+        try:
+            parsed_url = urlparse(url)
+            if parsed_url.hostname:
+                ip = ipaddress.ip_address(parsed_url.hostname)
+                return isinstance(ip, (ipaddress.IPv4Address, ipaddress.IPv6Address))
+        except ValueError:
+            pass  # Invalid hostname or IP address
+        return 0
 
-def extract_root_domain(url):
-    extracted = tldextract.extract(url)
-    return f"{extracted.domain}.{extracted.suffix}"
+    def extract_root_domain(url):
+        extracted = tldextract.extract(url)
+        return f"{extracted.domain}.{extracted.suffix}"
 
-def has_subdomain(url):
-    domain_parts = urlparse(url).netloc.split('.')
-    return 1 if len(domain_parts) > 2 else 0
+    def has_subdomain(url):
+        domain_parts = urlparse(url).netloc.split('.')
+        return 1 if len(domain_parts) > 2 else 0
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.get_json(force=True)
-    url = data['url']
+    @app.route('/predict', methods=['POST'])
+    def predict():
+        data = request.get_json(force=True)
+        url = data['url']
 
-    # Extract features
-    features = np.array([[
-        hash(extract_root_domain(url)) % (10 ** 8),  # root_domain as hashed integer
-        has_subdomain(url),  # Has_subdomain
-        count_chars(url, '.'),  # Count_dots
-        count_chars(url, '-'),  # Count_dashes
-        count_chars(url, '_'),  # Count_underscores
-        count_chars(url, '/'),  # Count_slashes
-        count_chars(url, '?'),  # Count_ques
-        count_non_alphanumeric(url),  # Count_non_alphanumeric
-        count_digits(url),  # Count_digits
-        count_letters(url),  # Count_letters
-        count_params(url),  # Count_params
-        has_php(url),  # Has_php
-        has_html(url),  # Has_html
-        has_at_symbol(url),  # Has_at_symbol
-        has_http(url),  # Has_http
-        have_ip_address(url),  # have_ip
-        has_https(url)  # HTTPS_token
-    ]], dtype=float)  # Ensure all features are float
+        # Extract features
+        features = np.array([[
+            hash(extract_root_domain(url)) % (10 ** 8),  # root_domain as hashed integer
+            has_subdomain(url),  # Has_subdomain
+            count_chars(url, '.'),  # Count_dots
+            count_chars(url, '-'),  # Count_dashes
+            count_chars(url, '_'),  # Count_underscores
+            count_chars(url, '/'),  # Count_slashes
+            count_chars(url, '?'),  # Count_ques
+            count_non_alphanumeric(url),  # Count_non_alphanumeric
+            count_digits(url),  # Count_digits
+            count_letters(url),  # Count_letters
+            count_params(url),  # Count_params
+            has_php(url),  # Has_php
+            has_html(url),  # Has_html
+            has_at_symbol(url),  # Has_at_symbol
+            has_http(url),  # Has_http
+            have_ip_address(url),  # have_ip
+            has_https(url)  # HTTPS_token
+        ]], dtype=float)  # Ensure all features are float
 
-    # Predict using the model
-    prediction = model.predict(features)
-    result = {'malicious': bool(prediction)}
+        # Predict using the model
+        prediction = model.predict(features)
+        result = {'malicious': bool(prediction)}
 
-    return jsonify(result)
+        return jsonify(result)
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-```
+    if __name__ == '__main__':
+        port = int(os.environ.get('PORT', 5000))
+        app.run(host='0.0.0.0', port=port)
+    ```
 
 3. **Run the Flask app:**
     ```sh
@@ -185,7 +179,7 @@ if __name__ == '__main__':
     sudo apt-get install dnsmasq
     ```
 
-2. **Configure `dnsmasq`**:
+2. **Configure `dnsmasq`:**
     - Add the following lines to `/etc/dnsmasq.conf`:
       ```conf
       server=127.0.0.1#5000
@@ -344,12 +338,72 @@ if __name__ == '__main__':
     - Configure alert rules in Grafana to notify when `malicious_url_counter` exceeds a threshold.
     - Configure notification channels (email, Slack, etc.) in Grafana.
 
-### Step 7: Testing and Verification
+### Step 7: Network Configuration for Employee Systems
+
+#### Manual Configuration on Each Device
+
+##### Windows
+
+1. **Open Network Connections**:
+   - Press `Windows + R`, type `ncpa.cpl`, and press `Enter`.
+
+2. **Change Adapter Settings**:
+   - Right-click on the active network connection (Ethernet/Wi-Fi) and select `Properties`.
+
+3. **Configure IPv4**:
+   - Select `Internet Protocol Version 4 (TCP/IPv4)` and click `Properties`.
+
+4. **Set DNS Server Address**:
+   - Select `Use the following DNS server addresses`.
+   - Enter the cloud-based admin system's IP address in the `Preferred DNS server` field.
+   - Click `OK` and `Close`.
+
+##### macOS
+
+1. **Open System Preferences**:
+   - Click the Apple menu and select `System Preferences`.
+
+2. **Network Settings**:
+   - Click `Network`.
+
+3. **Configure Network Adapter**:
+   - Select the active network connection (Wi-Fi/Ethernet) and click `Advanced`.
+
+4. **Set DNS Server Address**:
+   - Go to the `DNS` tab.
+   - Click the `+` button and add the cloud-based admin system's IP address.
+   - Click `OK` and `Apply`.
+
+##### Linux
+
+1. **Edit Network Configuration**:
+   - Depending on the Linux distribution and network manager in use, you can edit the network configuration file or use a graphical interface.
+
+2. **Set DNS Server Address**:
+   - For example, on Ubuntu with Network Manager, you can use:
+     ```bash
+     nmcli connection modify <connection_name> ipv4.dns <admin_system_ip>
+     nmcli connection up <connection_name>
+     ```
+
+#### Automatic Configuration via DHCP Server
+
+1. **Access Router/DHCP Server Settings**:
+   - Log in to your router or DHCP server's web interface.
+
+2. **Locate DHCP Settings**:
+   - Navigate to the DHCP settings page.
+
+3. **Set DNS Server**:
+   - Set the cloud-based admin system's IP address as the primary DNS server.
+   - Save the settings and restart the router if necessary.
+
+### Step 8: Testing and Verification
 
 1. **Simulate Malicious URL Detection:**
     - Send a POST request to the Flask application:
       ```bash
-      curl -X POST http://34.80.4.242:5000/classify -H "Content-Type: application/json" -d '{"url": "malicious_url_example"}'
+      curl -X POST -H "Content-Type: application/json" -d '{"url": "http://malicious_url_example.com"}' http://34.80.4.242:5000/classify
       ```
 
 2. **Verify Alerts in Grafana:**
@@ -362,22 +416,10 @@ if __name__ == '__main__':
 - Prometheus will scrape metrics from the Flask application on `localhost:8000`.
 - Grafana can be used to visualize the metrics.
 
-
-
-
 ### Additional Notes:
+
 1. **`flask_app_requirements.txt`**: Ensure you have a `flask_app_requirements.txt` file listing all dependencies (e.g., Flask, joblib, numpy, tldextract).
 2. **Model File**: The path to the model file (`best_xgboost_model.joblib`) should be adjusted according to your project structure.
 3. **Environment Variables**: If you are deploying this to a cloud service, you might need to set environment variables for the port or other configuration.
 
-
-
-
-
-
-
-
-
-
-This `README.md` should provide clear guidance for anyone looking to understand, install, and run your project.
-
+This `README.md` should provide clear guidance for anyone looking to understand, install, and run your project in a local network environment.
