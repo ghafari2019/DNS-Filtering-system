@@ -46,8 +46,8 @@ This project sets up a DNS URL filtering system using Flask, dnsmasq, Prometheus
 
 ### Step 2: Create Virtual Machines
 
-1. **Create VMs for Flask, dnsmasq, Prometheus, and Grafana**:
-  
+1. **Create VMs for Flask, dnsmasq, Prometheus, and Grafana**.
+
 2. **Set Up Firewall Rules**:
     ```bash
     gcloud compute firewall-rules create allow-flask --allow tcp:5000 --source-ranges 0.0.0.0/0
@@ -56,190 +56,190 @@ This project sets up a DNS URL filtering system using Flask, dnsmasq, Prometheus
     gcloud compute firewall-rules create allow-grafana --allow tcp:3000 --source-ranges 0.0.0.0/0
     ```
 
-1. **SSH into Flask VM**
-2. **Create and activate a virtual environment:**
-    ```sh
+3. **SSH into Flask VM**
+
+4. **Create and activate a virtual environment**:
+    ```bash
     python3 -m venv venv
     source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
     ```
-    
-3. **Install the required packages:**
 
-    ```sh
+5. **Install the required packages**:
+    ```bash
     pip install -r flask_app_requirements.txt
     ```
-    
-4. **Place the pre-trained XGBoost model file (`best_xgboost_model.joblib`) in the appropriate directory:**
 
-    ```sh
+6. **Place the pre-trained XGBoost model file (`best_xgboost_model.joblib`) in the appropriate directory**:
+    ```bash
     mkdir -p /home/ghafari_ghzl/
     mv path/to/best_xgboost_model.joblib /home/ghafari_ghzl/
     ```
+
 ### Step 3: Setup Flask Application
-1. **Feature Extraction File (feature_extraction.py):**
-```python
-# feature_extraction.py
-import numpy as np
-from urllib.parse import urlparse
-import ipaddress
-import tldextract
 
-def count_chars(url, char):
-    return url.count(char)
+1. **Feature Extraction File (`feature_extraction.py`)**:
+    ```python
+    import numpy as np
+    from urllib.parse import urlparse
+    import ipaddress
+    import tldextract
 
-def count_non_alphanumeric(url):
-    return len([char for char in url if not char.isalnum()])
+    def count_chars(url, char):
+        return url.count(char)
 
-def count_digits(url):
-    return len([char for char in url if char isdigit()])
+    def count_non_alphanumeric(url):
+        return len([char for char in url if not char isalnum()])
 
-def count_letters(url):
-    return len([char for char in url if char isalpha()])
+    def count_digits(url):
+        return len([char for char in url if char isdigit()])
 
-def count_params(url):
-    return len(urlparse(url).query.split('&'))
+    def count_letters(url):
+        return len([char for char in url if char isalpha()])
 
-def has_php(url):
-    return 1 if 'php' in url else 0
+    def count_params(url):
+        return len(urlparse(url).query.split('&'))
 
-def has_html(url):
-    return 1 if 'html' in url else 0
+    def has_php(url):
+        return 1 if 'php' in url else 0
 
-def has_at_symbol(url):
-    return 1 if '@' in url else 0
+    def has_html(url):
+        return 1 if 'html' in url else 0
 
-def has_double_slash(url):
-    return 1 if '//' in url else 0
+    def has_at_symbol(url):
+        return 1 if '@' in url else 0
 
-def has_http(url):
-    return 1 if urlparse(url).scheme == 'http' else 0
+    def has_double_slash(url):
+        return 1 if '//' in url else 0
 
-def has_https(url):
-    return 1 if urlparse(url).scheme == 'https' else 0
+    def has_http(url):
+        return 1 if urlparse(url).scheme == 'http' else 0
 
-def secure_http(url):
-    return int(urlparse(url).scheme == 'https')
+    def has_https(url):
+        return 1 if urlparse(url).scheme == 'https' else 0
 
-def have_ip_address(url):
-    try:
-        parsed_url = urlparse(url)
-        if parsed_url.hostname:
-            ip = ipaddress.ip_address(parsed_url.hostname)
-            return isinstance(ip, (ipaddress.IPv4Address, ipaddress.IPv6Address))
-    except ValueError:
-        pass  # Invalid hostname or IP address
-    return 0
+    def secure_http(url):
+        return int(urlparse(url).scheme == 'https')
 
-def extract_root_domain(url):
-    extracted = tldextract.extract(url)
-    return f"{extracted.domain}.{extracted.suffix}"
+    def have_ip_address(url):
+        try:
+            parsed_url = urlparse(url)
+            if parsed_url.hostname:
+                ip = ipaddress.ip_address(parsed_url.hostname)
+                return isinstance(ip, (ipaddress.IPv4Address, ipaddress.IPv6Address))
+        except ValueError:
+            pass  # Invalid hostname or IP address
+        return 0
 
-def has_subdomain(url):
-    domain_parts = urlparse(url).netloc.split('.')
-    return 1 if len(domain_parts) > 2 else 0
+    def extract_root_domain(url):
+        extracted = tldextract.extract(url)
+        return f"{extracted.domain}.{extracted.suffix}"
 
-def extract_features(url):
-    return np.array([[
-        hash(extract_root_domain(url)) % (10 ** 8),  # root_domain as hashed integer
-        has_subdomain(url),  # Has_subdomain
-        count_chars(url, '.'),  # Count_dots
-        count_chars(url, '-'),  # Count_dashes
-        count_chars(url, '_'),  # Count_underscores
-        count_chars(url, '/'),  # Count_slashes
-        count_chars(url, '?'),  # Count_ques
-        count_non_alphanumeric(url),  # Count_non_alphanumeric
-        count_digits(url),  # Count_digits
-        count_letters(url),  # Count_letters
-        count_params(url),  # Count_params
-        has_php(url),  # Has_php
-        has_html(url),  # Has_html
-        has_at_symbol(url),  # Has_at_symbol
-        has_http(url),  # Has_http
-        have_ip_address(url),  # have_ip
-        has_https(url)  # HTTPS_token
-    ]], dtype=float)  # Ensure all features are float
-```
-2. **Create Flask Application (app.py)**:
-```python
-import os
-from flask import Flask, request, jsonify
-from prometheus_client import Counter, start_http_server, generate_latest  # Added for Prometheus integration
-import joblib
-from feature_extraction import extract_features  # Import the feature extraction function
-import smtplib  # Added for email notifications
-from email.mime.text import MIMEText  # Added for email notifications
+    def has_subdomain(url):
+        domain_parts = urlparse(url).netloc.split('.')
+        return 1 if len(domain_parts) > 2 else 0
 
-app = Flask(__name__)
+    def extract_features(url):
+        return np.array([[
+            hash(extract_root_domain(url)) % (10 ** 8),  # root_domain as hashed integer
+            has_subdomain(url),  # Has_subdomain
+            count_chars(url, '.'),  # Count_dots
+            count_chars(url, '-'),  # Count_dashes
+            count_chars(url, '_'),  # Count_underscores
+            count_chars(url, '/'),  # Count_slashes
+            count_chars(url, '?'),  # Count_ques
+            count_non_alphanumeric(url),  # Count_non_alphanumeric
+            count_digits(url),  # Count_digits
+            count_letters(url),  # Count_letters
+            count_params(url),  # Count_params
+            has_php(url),  # Has_php
+            has_html(url),  # Has_html
+            has_at_symbol(url),  # Has_at_symbol
+            has_http(url),  # Has_http
+            have_ip_address(url),  # have_ip
+            has_https(url)  # HTTPS_token
+        ]], dtype=float)  # Ensure all features are float
+    ```
 
-# Load the pre-trained XGBoost model
-model = joblib.load('/home/ghafari_ghzl/best_xgboost_model.joblib')
+2. **Create Flask Application (`app.py`)**:
+    ```python
+    import os
+    from flask import Flask, request, jsonify
+    from prometheus_client import Counter, start_http_server, generate_latest  # Added for Prometheus integration
+    import joblib
+    from feature_extraction import extract_features  # Import the feature extraction function
+    import smtplib  # Added for email notifications
+    from email.mime.text import MIMEText  # Added for email notifications
 
-# Initialize Prometheus metrics
-MALICIOUS_URL_COUNTER = Counter('malicious_url_counter_total', 'Count of Malicious URLs Detected')  # Added for Prometheus metric
+    app = Flask(__name__)
 
-# Email settings - Added for email notifications
-SMTP_SERVER = 'smtp.example.com'
-SMTP_PORT = 587
-EMAIL_USER = 'your_email@example.com'
-EMAIL_PASS = 'your_password'
+    # Load the pre-trained XGBoost model
+    model = joblib.load('/home/ghafari_ghzl/best_xgboost_model.joblib')
 
-def send_email(to_address, subject, body):  # Added for email notifications
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = EMAIL_USER
-    msg['To'] = to_address
+    # Initialize Prometheus metrics
+    MALICIOUS_URL_COUNTER = Counter('malicious_url_counter_total', 'Count of Malicious URLs Detected')  # Added for Prometheus metric
 
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
-        server.sendmail(EMAIL_USER, [to_address], msg.as_string())
+    # Email settings - Added for email notifications
+    SMTP_SERVER = 'smtp.example.com'
+    SMTP_PORT = 587
+    EMAIL_USER = 'your_email@example.com'
+    EMAIL_PASS = 'your_password'
 
-def get_client_ip():
-    if request.headers.get('X-Forwarded-For'):
-        ip = request.headers['X-Forwarded-For'].split(',')[0]
-    else:
-        ip = request.remote_addr
-    return ip
+    def send_email(to_address, subject, body):  # Added for email notifications
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = EMAIL_USER
+        msg['To'] = to_address
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.get_json(force=True)
-    url = data['url']
-    client_ip = get_client_ip()  # Get client IP address
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_USER, EMAIL_PASS)
+            server.sendmail(EMAIL_USER, [to_address], msg.as_string())
 
-    # Extract features
-    features = extract_features(url)  # Call the feature extraction function
+    def get_client_ip():
+        if request.headers.get('X-Forwarded-For'):
+            ip = request.headers['X-Forwarded-For'].split(',')[0]
+        else:
+            ip = request.remote_addr
+        return ip
 
-    # Predict using the model
-    prediction = model.predict(features)
-    result = {'malicious': bool(prediction)}
+    @app.route('/predict', methods=['POST'])
+    def predict():
+        data = request.get_json(force=True)
+        url = data['url']
+        client_ip = get_client_ip()  # Get client IP address
 
-    # Increment the Prometheus counter if the URL is malicious
-    if prediction:
-        MALICIOUS_URL_COUNTER.inc()
-        # Log the IP address and URL
-        app.logger.info(f"Malicious URL detected: {url} by IP: {client_ip}")
-        # Send notification emails - Added for Google Cloud
-        send_email('admin@example.com', 'Malicious URL Blocked', f'Blocked URL: {url} from IP: {client_ip}')
-        send_email(f'{client_ip}@example.com', 'URL Blocked Notification', f'The URL {url} has been blocked due to being malicious.')
+        # Extract features
+        features = extract_features(url)  # Call the feature extraction function
 
-    return jsonify(result)  
-```
+        # Predict using the model
+        prediction = model.predict(features)
+        result = {'malicious': bool(prediction)}
 
-4. **Run Flask Application**:
+        # Increment the Prometheus counter if the URL is malicious
+        if prediction:
+            MALICIOUS_URL_COUNTER.inc()
+            # Log the IP address and URL
+            app.logger.info(f"Malicious URL detected: {url} by IP: {client_ip}")
+            # Send notification emails - Added for Google Cloud
+            send_email('admin@example.com', 'Malicious URL Blocked', f'Blocked URL: {url} from IP: {client_ip}')
+            send_email(f'{client_ip}@example.com', 'URL Blocked Notification', f'The URL {url} has been blocked due to being malicious.')
+
+        return jsonify(result)  
+    ```
+
+3. **Run Flask Application**:
     ```bash
     python app.py
     ```
+
 ### Step 4: Configure dnsmasq
-
-
 
 1. **Install dnsmasq**:
     ```bash
     sudo apt-get install dnsmasq
     ```
 
-2. **Configure dnsmasq (/etc/dnsmasq.conf)**:
+2. **Configure dnsmasq (`/etc/dnsmasq.conf`)**:
     ```conf
     server=127.0.0.1#5000
     port=53
@@ -255,7 +255,7 @@ def predict():
     conf-dir=/etc/dnsmasq.d
     ```
 
-3. **Create a Script for DNS Queries (dns_filter.sh)**:
+3. **Create a Script for DNS Queries (`dns_filter.sh`)**:
     ```bash
     #!/bin/bash
 
@@ -269,14 +269,15 @@ def predict():
         dig +short $DOMAIN
     fi
     ```
-Note: Here we only have a single vm instance, so all VM_IPs are the same: <Prometheus_VM_IP>=<Grafana_VM_IP>=<dnsmasq_VM_IP>=<Flask_VM_IP>
+
+    Note: Here we only have a single VM instance, so all VM IPs are the same: `<Prometheus_VM_IP>=<Grafana_VM_IP>=<dnsmasq_VM_IP>=<Flask_VM_IP>`
 
 4. **Make the Script Executable**:
     ```bash
     chmod +x /path/to/dns_filter.sh
     ```
 
-5. **Create /etc/dnsmasq.d/custom.conf**:
+5. **Create `/etc/dnsmasq.d/custom.conf`**:
     ```conf
     addn-hosts=/etc/dnsmasq.d/hosts.blocklist
     ```
@@ -294,7 +295,7 @@ Note: Here we only have a single vm instance, so all VM_IPs are the same: <Prome
     sudo apt-get install prometheus
     ```
 
-2. **Configure Prometheus (/etc/prometheus/prometheus.yml)**:
+2. **Configure Prometheus (`/etc/prometheus/prometheus.yml`)**:
     ```yaml
     global:
       scrape_interval: 15s
@@ -305,7 +306,6 @@ Note: Here we only have a single vm instance, so all VM_IPs are the same: <Prome
         static_configs:
           - targets: ['<Flask_VM_IP>:8000']
     ```
-
 
 3. **Restart Prometheus**:
     ```bash
@@ -332,7 +332,11 @@ Note: Here we only have a single vm instance, so all VM_IPs are the same: <Prome
       - Set URL to `http://<Prometheus_VM_IP>:9090`.
       - Click "Save & Test".
 
-### Step 7: Create Dashboards and Alerts in Grafana (continued)
+### Step 7: Create Dashboards and Alerts in Grafana
+
+1. **Create Dashboards**:
+    - Open Grafana and create a new dashboard.
+    - Add a new panel to visualize the `malicious_url_counter_total` metric.
 
 2. **Set Up Alerts**:
     - In the panel editor, click on the `Alert` tab.
@@ -439,15 +443,15 @@ To ensure the changes have taken effect, you can check the DNS server settings o
 
 1. **Simulate Malicious URL Detection**:
    - Send a POST request to the Flask application:
-    ```bash
-    curl -X POST -H "Content-Type: application/json" -d '{"url": "http://malicious_url_example.com"}' http://<Flask_VM_IP>:5000/predict
-    ```
+     ```bash
+     curl -X POST -H "Content-Type: application/json" -d '{"url": "http://malicious_url_example.com"}' http://<Flask_VM_IP>:5000/predict
+     ```
 
 2. **Verify Metrics Exposure**:
    - Ensure the metrics are exposed by running:
-    ```bash
-    curl http://<Flask_VM_IP>:8000/metrics
-    ```
+     ```bash
+     curl http://<Flask_VM_IP>:8000/metrics
+     ```
 
 3. **Verify Alerts in Grafana**:
    - Check the Grafana dashboard for updates to the `malicious_url_counter_total` metric.
