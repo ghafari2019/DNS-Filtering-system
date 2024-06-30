@@ -4,6 +4,30 @@ This project sets up a DNS URL filtering system using Flask, dnsmasq, Prometheus
 
 For instructions on deploying this system on Google Cloud Platform (GCP), please refer to the appropriate documentation in the `google_cloud_setup` directory.
 
+
+## Table of Contents
+
+
+  - [Setup](#setup)
+    - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Step 1: Setup Flask Application](#step-1-setup-flask-application)
+  - [Step 2: Configure dnsmasq](#step-2-configure-dnsmasq)
+  - [Step 3: Deploy Flask Application with Gunicorn](#step-3-deploy-flask-application-with-gunicorn)
+  - [Step 4: Install and Configure Prometheus](#step-4-install-and-configure-prometheus)
+  - [Step 5: Install and Configure Grafana](#step-5-install-and-configure-grafana)
+  - [Step 6: Create Dashboards and Alerts in Grafana](#step-6-create-dashboards-and-alerts-in-grafana)
+  - [Step 7: Network Configuration for Employee Systems](#step-7-network-configuration-for-employee-systems)
+    - [Manual Configuration on Each Device](#manual-configuration-on-each-device)
+      - [Windows](#windows)
+      - [macOS](#macos)
+      - [Linux](#linux)
+    - [Automatic Configuration via DHCP Server](#automatic-configuration-via-dhcp-server)
+  - [Step 8: Testing and Verification](#step-8-testing-and-verification)
+  - [Usage](#usage)
+  - [Additional Notes](#additional-notes)
+
+
 ## Setup
 
 ### Prerequisites
