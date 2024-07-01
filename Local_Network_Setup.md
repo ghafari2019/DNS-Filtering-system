@@ -59,10 +59,9 @@ For instructions on deploying this system on Google Cloud Platform (GCP), please
     pip install -r flask_app_requirements.txt
     ```
 
-4. Place the pre-trained XGBoost model file (`best_xgboost_model.joblib`) in the appropriate directory:
+4. Chech if the pre-trained XGBoost model file (`best_xgboost_model.joblib`) in the directory:
     ```sh
-    mkdir -p /home/ghafari_ghzl/
-    mv path/to/best_xgboost_model.joblib /home/ghafari_ghzl/
+    dir
     ```
 
 ### Step 1: Setup Flask Application
@@ -186,7 +185,7 @@ For instructions on deploying this system on Google Cloud Platform (GCP), please
 
 4. **Send a POST request to the `/predict` endpoint with a JSON body containing the URL to be evaluated:**
     ```sh
-    curl -X POST -H "Content-Type: application/json" -d '{"url": "http://example.com"}' http://localhost:5000/predict
+    curl -X POST -H "Content-Type: application/json" -d "{\"url\": \"http://example.com\"}" http://localhost:5000/predict
     ```
 
 5. **The app will respond with a JSON object indicating whether the URL is malicious:**
