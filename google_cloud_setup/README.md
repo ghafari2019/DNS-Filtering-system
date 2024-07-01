@@ -58,21 +58,27 @@ This project sets up a DNS URL filtering system using Flask, dnsmasq, Prometheus
 
 3. **SSH into Flask VM**
 
-4. **Create and activate a virtual environment**:
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+4. Clone the repository:
+    ```sh
+    git clone https://github.com/ghafari2019/DNS-Filtering-system.git
+    cd DNS-Filtering-system
     ```
 
-5. **Install the required packages**:
+
+5. **Create and activate a virtual environment**:
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate  
+    ```
+
+6. **Install the required packages**:
     ```bash
     pip install -r flask_app_requirements.txt
     ```
 
-6. **Place the pre-trained XGBoost model file (`best_xgboost_model.joblib`) in the appropriate directory**:
+7. **Check if the pre-trained XGBoost model file (`best_xgboost_model.joblib`) in the directory**:
     ```bash
-    mkdir -p /home/ghafari_ghzl/
-    mv path/to/best_xgboost_model.joblib /home/ghafari_ghzl/
+    ls
     ```
 
 ### Step 3: Setup Flask Application
