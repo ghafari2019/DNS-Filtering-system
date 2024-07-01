@@ -214,6 +214,22 @@ if __name__ == '__main__':
     ```bash
     python app.py
     ```
+4. **Send a POST request to the `/predict` endpoint with a JSON body containing the URL to be evaluated:**
+   Open a new SSH session, navigate to the venv directory, while app_gc.py is still running in the first SSH session, and execute the following command:
+    ```sh
+    curl -X POST -H "Content-Type: application/json" -d "{\"url\": \"http://example.com\"}" http://localhost:5000/predict
+    ```
+*localhost: External vm  instanve IP*
+
+
+5. **The app will respond with a JSON object indicating whether the URL is malicious:**
+    ```json
+    {
+      "malicious": true
+    }
+    ```
+
+    
 
 ### Step 4: Configure dnsmasq
 
