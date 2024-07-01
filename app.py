@@ -9,7 +9,7 @@ import tldextract
 app = Flask(__name__)
 
 # Load the pre-trained XGBoost model
-model = joblib.load('/home/ghafari_ghzl/best_xgboost_model.joblib')
+model = joblib.load('best_xgboost_model.joblib')
 
 def count_chars(url, char):
     return url.count(char)
