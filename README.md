@@ -75,25 +75,19 @@ There are several alternative methods for URL filtering, each with its own advan
 - **Pros**: Simple to implement and understand.
 - **Cons**: Requires constant updates; blacklists can miss new threats and whitelists can be overly restrictive.
 
-### 2. Signature-Based Filtering
-- **How It Works**: Uses a database of known malware signatures and patterns to identify and block malicious URLs.
-- **Pros**: Effective against known threats; can be integrated with antivirus software.
-- **Cons**: Ineffective against new, unknown threats (zero-day attacks).
 
-### 3. Proxy-Based Filtering
+
+### 2. Proxy-Based Filtering
 - **How It Works**: Routes all web traffic through a proxy server that filters URLs based on set rules and policies.
 - **Pros**: Centralized control; can apply comprehensive policies.
 - **Cons**: Single point of failure; can introduce latency.
 
-### 4. Content Filtering
+### 3. Content Filtering
 - **How It Works**: Inspects the content of web pages in real-time to determine if they contain malicious or inappropriate material.
 - **Pros**: Comprehensive filtering based on actual content.
 - **Cons**: Computationally intensive; may impact browsing performance.
 
-### 5. Machine Learning-Based Filtering
-- **How It Works**: Uses machine learning models to analyze URLs and predict their safety based on various features and patterns.
-- **Pros**: Adaptive and can improve over time with more data; effective against new and evolving threats.
-- **Cons**: Requires initial setup and training; may need substantial data for accurate predictions.
+
 
 ## Why Our Method is Better
 Our method combines the strengths of several approaches while addressing their individual weaknesses. Here’s a detailed comparison and explanation of why our method stands out:
