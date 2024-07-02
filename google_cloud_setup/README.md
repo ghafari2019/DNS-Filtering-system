@@ -219,7 +219,7 @@ if __name__ == '__main__':
     ```sh
     curl -X POST -H "Content-Type: application/json" -d "{\"url\": \"http://example.com\"}" http://localhost:5000/predict
     ```
-*localhost: External vm  instanve IP*
+    *localhost: External vm  instanve IP*
 
 
 5. **The app will respond with a JSON object indicating whether the URL is malicious:**
@@ -238,23 +238,58 @@ if __name__ == '__main__':
     sudo apt-get install dnsmasq
     ```
 
-2. **Configure dnsmasq (`/etc/dnsmasq.conf`)**:
-    ```conf
-    server=127.0.0.1#5000
-    port=53
-    listen-address=127.0.0.1
-
-    # Log each DNS query
-    log-queries
-
-    # Log extra information about DHCP transactions
-    log-dhcp
-
-    # Include another lot of configuration options
+2. **Edit Main Configuration File:**
+    ```bash
+    sudo nano /etc/dnsmasq.conf
+    ```
+    Ensure it includes:
+    ```plaintext
     conf-dir=/etc/dnsmasq.d
     ```
 
-3. **Create a Script for DNS Queries (`dns_filter.sh`)**:
+3. **Edit Custom Configuration File:**
+    ```bash
+    sudo nano /etc/dnsmasq.d/custom.conf
+    ```
+    Ensure it includes:
+    ```plaintext
+    addn-hosts=/etc/dnsmasq.d/hosts.blocklist
+    ```
+
+4. **Ensure Blocklist File Exists:**
+    ```bash
+    sudo touch /etc/dnsmasq.d/hosts.blocklist
+    ```
+
+5. **Validate Configuration:**
+    ```bash
+    sudo dnsmasq --test
+    ```
+
+6. **Restart Service:**
+    ```bash
+    sudo systemctl restart dnsmasq
+    ```
+
+7. **Check Service Status:**
+    ```bash
+    sudo systemctl status dnsmasq
+    ```
+
+By following these steps, you should be able to correctly configure and restart the `dnsmasq` service. 
+
+  
+  
+  
+  ### Step 5: Create a Script for DNS Queries (`dns_filter.sh`)
+
+1. **Open a text editor to create the script**:
+    ```bash
+    nano dns_filter.sh
+    ```
+
+2. **Add the following script content**:
+
     ```bash
     #!/bin/bash
 
@@ -269,24 +304,20 @@ if __name__ == '__main__':
     fi
     ```
 
-    Note: Here we only have a single VM instance, so all VM IPs are the same: `<Prometheus_VM_IP>=<Grafana_VM_IP>=<dnsmasq_VM_IP>=<Flask_VM_IP>`
+3. **Save and close the file**:
+    - If using `nano`, press `Ctrl+X`, then `Y` to confirm changes, and `Enter` to save.
 
-4. **Make the Script Executable**:
+4. **Make the script executable**:
     ```bash
-    chmod +x /path/to/dns_filter.sh
+    chmod +x dns_filter.sh
     ```
 
-5. **Create `/etc/dnsmasq.d/custom.conf`**:
-    ```conf
-    addn-hosts=/etc/dnsmasq.d/hosts.blocklist
-    ```
+By following these steps, you will create and configure the `dns_filter.sh` script, making it executable and ready for use in your DNS filtering system.
 
-6. **Restart dnsmasq**:
-    ```bash
-    sudo systemctl restart dnsmasq
-    ```
+ 
+ 
 
-### Step 5: Install and Configure Prometheus
+### Step 6: Install and Configure Prometheus
 
 1. **Install Prometheus**:
     ```bash
@@ -294,7 +325,13 @@ if __name__ == '__main__':
     sudo apt-get install prometheus
     ```
 
-2. **Configure Prometheus (`/etc/prometheus/prometheus.yml`)**:
+2. **Open the Prometheus Configuration File**:
+    ```bash
+    sudo nano /etc/prometheus/prometheus.yml
+    ```
+
+3. **Configure Prometheus (`/etc/prometheus/prometheus.yml`)**:
+    Add or modify the configuration to include a job for scraping Flask metrics. Insert the following lines under the existing `global` and `scrape_configs` sections:
     ```yaml
     global:
       scrape_interval: 15s
@@ -305,13 +342,26 @@ if __name__ == '__main__':
         static_configs:
           - targets: ['<Flask_VM_IP>:8000']
     ```
+    Replace `<Flask_VM_IP>` with the actual IP address of your Flask server.
 
-3. **Restart Prometheus**:
+4. **Save and Close the File**:
+    - If using `nano`, press `Ctrl+X` to exit the editor.
+    - Press `Y` to confirm the changes.
+    - Press `Enter` to save the file with the same name.
+
+5. **Restart Prometheus**:
     ```bash
     sudo systemctl restart prometheus
     ```
 
-### Step 6: Install and Configure Grafana
+6. **Verify Prometheus Status**:
+    ```bash
+    sudo systemctl status prometheus
+    ```
+
+By following these steps, you will install and configure Prometheus to scrape metrics from your Flask application, ensuring that your monitoring setup includes the necessary metrics collection.
+
+### Step 7: Install and Configure Grafana
 
 1. **Install Grafana**:
     ```bash
